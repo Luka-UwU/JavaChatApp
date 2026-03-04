@@ -25,7 +25,7 @@ public class ChatServer {
 
     }
 
-    class ClientHandler implements Runnable{
+    static class ClientHandler implements Runnable{
 
         private Socket clientSocket;
         private List<ClientHandler> clients;
