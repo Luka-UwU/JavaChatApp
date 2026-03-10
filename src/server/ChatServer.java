@@ -5,8 +5,7 @@ import java.net.*;
 import java.util.*;
 
 public class ChatServer {
-    //List to keep track of all connected clients
-    private static List<ClientHandler> clients = new ArrayList<>();
+
     private ServerSocket serverSocket;
 
     public ChatServer(int port) throws IOException {
@@ -28,9 +27,7 @@ public class ChatServer {
             while (!serverSocket.isClosed()) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("A new client has connected.");
-
-                ClientHandler clientThread = new ClientHandler(clientSocket, clients);
-                clients.add(clientThread);
+                ClientHandler clientThread = new ClientHandler(clientSocket);
                 Thread thread = new Thread(clientThread);
                 thread.start();
             }
@@ -43,6 +40,7 @@ public class ChatServer {
         try {
             if (serverSocket != null) {
                 serverSocket.close();
+                System.out.println("Server stopped.");
             }
         } catch(IOException e){
             e.printStackTrace();
