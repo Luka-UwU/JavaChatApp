@@ -2,6 +2,7 @@ package client;
 
 import java.net.*;
 import java.io.*;
+import java.util.Scanner;
 
 
 public class ChatClient {
@@ -9,27 +10,18 @@ public class ChatClient {
     private Socket socket = null;
     private PrintWriter out = null;
     private BufferedReader in = null;
-    private BufferedReader inputConsole = null;
+    private BufferedReader userInput = null;
+    private String username = null;
 
-    public ChatClient(String address, int port) {
+    public ChatClient(String address, int port, String username) {
         try{
-           socket = new Socket(address, port);
+           this.socket = new Socket(address, port);
            System.out.println("Connected to the chat server at " + address + ":" + port);
 
-           inputConsole = new BufferedReader(new InputStreamReader(System.in)); //receives messages from server
-           out = new PrintWriter(socket.getOutputStream(), true); //send user input to server
-           in = new BufferedReader(new InputStreamReader(socket.getInputStream())); //read user input
-
-            String line = "";
-            while(!line.equals("exit")){
-                line = inputConsole.readLine();
-                out.println(line); //send user input to server
-                System.out.println(in.readLine());
-            }
-
-            socket.close();
-            in.close();
-            out.close();
+           this.userInput = new BufferedReader(new InputStreamReader(System.in)); //read user input
+           this.out = new PrintWriter(socket.getOutputStream(), true); //send user input to server
+           this.in = new BufferedReader(new InputStreamReader(socket.getInputStream())); //receive messages from other users
+           this.username = username;
 
 
         }
@@ -42,9 +34,51 @@ public class ChatClient {
 
     }
 
+    public void sendMessage(){
+        try {
+            out.println(username);
+
+            while(socket.isConnected()) {
+                String line = "";
+                while (!line.equals("exit")) {
+                    line = userInput.readLine();
+                    out.println(username + ": " + line); //send user input to server
+
+                }
+            }
+
+            socket.close();
+            in.close();
+            out.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred: " + e.getMessage());
+        }
+    }
+
+    public void listenToMessage(){
+        new Thread(new Runnable() {
+            public void run() {
+                String message;
+                while(socket.isConnected()) {
+                    try{
+                        message = in.readLine();
+                        System.out.println(message);
+                    } catch (IOException e) {
+                        System.out.println("An error occurred: " + e.getMessage());
+                    }
+                }
+            }
+        }).start();
+    }
+
 
 
     public static void main(String[] args) {
-        ChatClient client = new ChatClient("localhost", 9001);
+        System.out.println("Enter your username: ");
+        Scanner name = new Scanner(System.in);
+        String username = name.nextLine();
+        ChatClient client = new ChatClient("localhost", 9001, username);
+        client.listenToMessage();
+        client.sendMessage();
     }
 }
