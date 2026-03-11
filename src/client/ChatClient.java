@@ -43,13 +43,10 @@ public class ChatClient {
                 while (!line.equals("exit")) {
                     line = userInput.readLine();
                     out.println(username + ": " + line); //send user input to server
-
                 }
             }
+            closeConnection();
 
-            socket.close();
-            in.close();
-            out.close();
         } catch (IOException e) {
             System.out.println("An error occurred: " + e.getMessage());
         }
@@ -65,12 +62,31 @@ public class ChatClient {
                         System.out.println(message);
                     } catch (IOException e) {
                         System.out.println("An error occurred: " + e.getMessage());
+
                     }
                 }
             }
         }).start();
     }
 
+    public void closeConnection(){
+        try {
+            if (socket != null) {
+                socket.close();
+            }
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+            if (userInput != null) {
+                userInput.close();
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred while closing the connection: " + e.getMessage());
+        }
+    }
 
 
     public static void main(String[] args) {
