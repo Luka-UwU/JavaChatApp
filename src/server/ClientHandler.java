@@ -15,7 +15,7 @@ public class ClientHandler implements Runnable{
 
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
-        this.out = new PrintWriter(clientSocket.getOutputStream(), true);
+        this.out = new PrintWriter(clientSocket.getOutputStream(), true); //send message to client
         this.in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); //receive message from client
         this.clientUsername = in.readLine();
         ClientHandler.clients.add(this);
@@ -31,6 +31,7 @@ public class ClientHandler implements Runnable{
             }
         } catch (IOException e){
             System.out.println("An error occurred: " + e.getMessage());
+            removeClient();
         }
         finally {
             try{
@@ -38,6 +39,7 @@ public class ClientHandler implements Runnable{
                 in.close();
                 out.close();
             } catch (IOException e){
+                removeClient();
                 e.printStackTrace();
             }
 
@@ -50,13 +52,12 @@ public class ClientHandler implements Runnable{
 
             if (!aClient.clientUsername.equals(clientUsername)) {
                 aClient.out.println(messageToSend);
-                //aClient.out.flush();
             }
         }
     }
 
     public void removeClient(){
-        clients.remove(this);
         broadcastMessage("Server: " + clientUsername + " has left the chat.");
+        clients.remove(this);
     }
 }
