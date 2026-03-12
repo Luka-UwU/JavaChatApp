@@ -36,7 +36,7 @@ public class ChatClient {
 
     public void sendMessage(){
         try {
-            out.println(username);
+            out.println(username); //send username to server to add to clients list
 
             while(socket.isConnected()) {
                 String line = "";
@@ -44,11 +44,16 @@ public class ChatClient {
                     line = userInput.readLine();
                     out.println(username + ": " + line); //send user input to server
                 }
+                closeConnection();
             }
-            closeConnection();
+
 
         } catch (IOException e) {
-            System.out.println("An error occurred: " + e.getMessage());
+            if(e.getMessage().equals("Stream closed")) {
+                System.out.println("Connection closed. Exiting...");
+                return;
+            }
+            System.out.println("An error occurred while sending messages: " + e.getMessage());
         }
     }
 
@@ -61,8 +66,11 @@ public class ChatClient {
                         message = in.readLine();
                         System.out.println(message);
                     } catch (IOException e) {
-                        System.out.println("An error occurred: " + e.getMessage());
-
+                        if(e.getMessage().equals("Socket closed")) {
+                            return;
+                        }
+                        System.out.println("An error occurred while listening for messages: " + e.getMessage());
+                        break;
                     }
                 }
             }
@@ -71,6 +79,8 @@ public class ChatClient {
 
     public void closeConnection(){
         try {
+
+            Thread.currentThread().interrupt();
             if (socket != null) {
                 socket.close();
             }
