@@ -25,13 +25,11 @@ public class ClientHandler implements Runnable{
     public void run() {
         try{
             String inputLine;
-            while(clientSocket.isConnected()) {
-                inputLine = in.readLine();
+            while((inputLine = in.readLine()) != null) {
                 broadcastMessage(inputLine);
             }
         } catch (IOException e){
             System.out.println("An error occurred: " + e.getMessage());
-            removeClient();
         }
         finally {
             try{

@@ -80,7 +80,6 @@ public class ChatClient {
     public void closeConnection(){
         try {
 
-            Thread.currentThread().interrupt();
             if (socket != null) {
                 socket.close();
             }
